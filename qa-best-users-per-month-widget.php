@@ -49,6 +49,7 @@ class qa_best_users_per_month_widget {
 
 	function output_widget($region, $place, $themeobject, $template, $request, $qa_content)
 	{
+		require_once 'jdf.php';
 		/* Settings */
 		$maxusers = 4;			// max users to display in widget
 		$adminID = 1;			// if you want the admin not to be considered in the userpoints list, define his id here (set 0 if admin should be displayed)
@@ -76,15 +77,14 @@ class qa_best_users_per_month_widget {
 		
 		// compare userscores from last month to userpoints now (this query is considering new users that do not exist in qa_userscores) 
 		// as we order by mpoints the query returns best users first, and we do not need to sort by php: arsort($scores)
-		$queryRecentScores = qa_db_query_sub("SELECT ^userpoints.userid, ^userpoints.points - COALESCE(^userscores.points,0) AS mpoints 
-								FROM `^userpoints`
-								LEFT JOIN `^userscores` on ^userpoints.userid=^userscores.userid 
-									AND YEAR(^userscores.date) = YEAR(CURDATE()) 
-									AND MONTH(^userscores.date) = MONTH(CURDATE())
-								WHERE ^userpoints.userid != ".$adminID."
-								ORDER BY mpoints DESC, ^userpoints.userid DESC;");
-			// thanks srini.venigalla for helping me with advanced mysql
-			// http://stackoverflow.com/questions/11085202/calculate-monthly-userscores-between-two-tables-using-mysql
+		$queryRecentScores = qa_db_query_sub("SELECT UP.userid, UP.points-COALESCE(TT.points, 0) AS mpoints
+								FROM ^userpoints AS UP LEFT JOIN
+								(SELECT US.userid, US.points FROM ^userscores AS US INNER JOIN
+								(SELECT userid, MAX(date) AS mdate FROM ^userscores GROUP BY userid) T
+								ON US.userid=T.userid AND US.date=T.mdate)
+								TT ON UP.userid=TT.userid
+								WHERE UP.userid != ".$adminID."
+								ORDER BY mpoints DESC, UP.userid DESC;");
 
 		
 		// save all userscores in array $scores
@@ -138,8 +138,11 @@ class qa_best_users_per_month_widget {
 		setlocale (LC_TIME, $localcode); 
 		$monthName = strftime("%B %G", strtotime( date('F')) ); // %B for full month name, %b for abbreviation
 		*/
-		$monthName = date('m/Y'); // 2 digit month and 4 digit year
-		
+		if(qa_opt('bupm_date_type') == 1)
+			$monthName = date('m/Y'); // 2 digit month and 4 digit year
+		else if(qa_opt('bupm_date_type') == 2)
+			$monthName = jgetdate()['month'];
+
 		$themeobject->output('<div style="font-size:14px;margin-bottom:18px;"><a style="font-weight:bold;" href="'.qa_opt('site_url').'bestusers">'.$langActUsers.'</a> <span style="font-size:12px;">'.$monthName.'</span></div>'); 
 		$themeobject->output( $bestusers );
 		

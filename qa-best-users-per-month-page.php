@@ -1,23 +1,7 @@
 <?php
 
 	class qa_best_users_per_month_page {
-		
-		// initialize db-table 'userscores' if it does not exist yet
-		function init_queries($tableslc) {
-			$tablename=qa_db_add_table_prefix('userscores');
-			
-			if(!in_array($tablename, $tableslc)) {
-				return "CREATE TABLE IF NOT EXISTS `".$tablename."` (
-				  `date` date NOT NULL,
-				  `userid` int(10) unsigned NOT NULL,
-				  `points` int(11) NOT NULL DEFAULT '0',
-				  KEY `userid` (`userid`),
-				  KEY `date` (`date`)
-				)
-				";
-			}
-		}
-		
+
 		var $directory;
 		var $urltoroot;
 		
@@ -51,7 +35,7 @@
 
 		function process_request($request)
 		{
-		
+			require_once 'jdf.php';
 			/* SETTINGS */
 			$maxusers = 20; 			// max users to display 
 			$adminID = 1;				// if you want the admin not considered in the userpoints list, define his id here (set 0 if admin should be in)
@@ -118,15 +102,16 @@
 			
 			$dropdown_options=array();
 			
-			// list all available months in array
-			foreach(get_year_months($firstListDate, $lastListDate) as $value){
-				// array index is <option value> (see html), saved string is label, e.g. $dropdown_options['2012-05-01'] = "month";
-				$dropdown_options[$value] = date("m/Y", strtotime($value) );
+			if(qa_opt('bupm_date_type') == 1)
+			{
+				foreach(get_year_months_en($firstListDate, $lastListDate) as $value)
+					$dropdown_options[$value] = date("m/Y", strtotime($value) );
+				arsort($dropdown_options);
 			}
-			// sort so that latest month is on top
-			arsort($dropdown_options);
+			else if(qa_opt('bupm_date_type') == 2)
+				foreach(get_year_months_fa($firstListDate, $lastListDate) as $key => $value)
+					$dropdown_options[$value] = $key;			
 
-			
 			// output reward on top
 			if($showReward) {
 				$qa_content['custom'.++$c] = $showRewardOnTop;
@@ -141,7 +126,6 @@
 				// 'ok' => qa_post_text('buttonOK') ? 'Chosen Month: '.qa_post_text('request') : null,
 
 				// 'title' => 'Form title',
-				
 				'fields' => array(
 					'request' => array(
 						'id' => 'dropdown', 
@@ -149,7 +133,7 @@
 						'tags' => 'NAME="request" onchange="this.form.submit()" id="dropdown_select"',
 						'type' => 'select',
 						'options' => $dropdown_options,
-						//'value' => '2012-05-01', // qa_html($request),
+						'value' => qa_post_text('request'),
 						//'error' => qa_html('Another error'),
 					),
 				),
@@ -170,31 +154,55 @@
 			// we need to do another query to get the userscores of the recent month
 			if($chosenMonth == date("Y-m-01") ) {
 				// calculate userscores from recent month
-				$queryRecentScores = qa_db_query_sub("
-										SELECT ^userpoints.userid, ^userpoints.points - COALESCE(^userscores.points,0) AS mpoints 
-										FROM `^userpoints`
-										LEFT JOIN `^userscores` on ^userpoints.userid=^userscores.userid 
-											AND YEAR(^userscores.date) = YEAR(CURDATE()) 
-											AND MONTH(^userscores.date) = MONTH(CURDATE())
-										WHERE ^userpoints.userid != ".$adminID."
-										ORDER BY mpoints DESC, ^userpoints.userid DESC;");
+			$queryRecentScores = qa_db_query_sub("SELECT UP.userid, UP.points-COALESCE(TT.points, 0) AS mpoints
+									FROM ^userpoints AS UP LEFT JOIN
+									(SELECT US.userid, US.points FROM ^userscores AS US INNER JOIN
+									(SELECT userid, MAX(date) AS mdate FROM ^userscores GROUP BY userid) T
+									ON US.userid=T.userid AND US.date=T.mdate)
+									TT ON UP.userid=TT.userid
+									WHERE UP.userid != ".$adminID."
+									ORDER BY mpoints DESC, UP.userid DESC;");
 				// thanks srini.venigalla for helping me with advanced mysql
 				// http://stackoverflow.com/questions/11085202/calculate-monthly-userscores-between-two-tables-using-mysql
 			}
 			else {
-				// calculate userscores for given month
-				$queryRecentScores = qa_db_query_sub("
-										SELECT ul.userid, 
-												ul.points - COALESCE(uf.points, 0) AS mpoints 
-										FROM `^userscores` ul 
-										LEFT JOIN (SELECT userid, points FROM `^userscores` WHERE `date` = '".$intervalStart."') AS uf
-										ON uf.userid = ul.userid
-										WHERE ul.date = '".$intervalEnd."'
-										AND ul.userid != ".$adminID."
-										ORDER BY mpoints DESC;"
-									);
-				// thanks raina77ow for helping me with mysql
-				// http://stackoverflow.com/questions/11178599/mysql-get-difference-between-two-values-in-one-table-multiple-userids
+				if(qa_opt('bupm_date_type') == 1)
+					$queryRecentScores = qa_db_query_sub("
+											SELECT ul.userid, 
+													ul.points - COALESCE(uf.points, 0) AS mpoints 
+											FROM `^userscores` ul 
+											LEFT JOIN (SELECT userid, points FROM `^userscores` WHERE `date` = '".$intervalStart."') AS uf
+											ON uf.userid = ul.userid
+											WHERE ul.date = '".$intervalEnd."'
+											AND ul.userid != ".$adminID."
+											ORDER BY mpoints DESC;"
+										);
+				else if(qa_opt('bupm_date_type') == 2)
+					$queryRecentScores = qa_db_query_sub("
+						SELECT END.userid, end_points-begin_points AS mpoints FROM
+							(
+								SELECT UP.userid, COALESCE(TTT1.points, UP.points) AS end_points FROM ^userpoints AS UP
+									LEFT JOIN
+									(
+										SELECT TT1.userid, points FROM ^userscores AS TT1
+											LEFT JOIN (
+												SELECT userid, MIN(date) AS end_date FROM ^userscores WHERE date>='{$chosenMonth}' GROUP BY userid
+											) AS T1
+											ON T1.userid = TT1.userid WHERE TT1.date=end_date
+									) TTT1
+									ON UP.userid=TTT1.userid
+							) END
+							INNER JOIN
+							(
+								SELECT TT2.userid, COALESCE(points, 0) AS begin_points FROM ^userscores AS TT2
+									LEFT JOIN
+									(
+										SELECT userid, MAX(date) AS begin_date FROM ^userscores WHERE date<'{$chosenMonth}' GROUP BY userid
+									) AS T2
+									ON T2.userid = TT2.userid WHERE TT2.date=begin_date
+							) BEGIN
+							ON END.userid=BEGIN.userid
+						");
 			}
 
 
@@ -238,8 +246,10 @@
 			/* output into theme */
 			$qa_content['custom'.++$c]='<div class="bestusers" style="border-radius:0; padding:35px 48px; margin-top:-2px;">';
 			
-			// convert date to display m/Y, 2 digit month and 4 digit year
-			$monthName = date("m/Y", strtotime($chosenMonth) );
+			if(qa_opt('bupm_date_type') == 1)
+				$monthName = date("m/Y", strtotime($chosenMonth) );
+			else if(qa_opt('bupm_date_type') == 2)
+				$monthName = jgetdate(strtotime($chosenMonth))['month'];
 			
 			$qa_content['custom'.++$c]='<div style="font-size:16px;margin-bottom:18px;"><b>'.$lang_best_users.' '.$monthName.'</b></div>'; 
 			$qa_content['custom'.++$c]= $bestusers;

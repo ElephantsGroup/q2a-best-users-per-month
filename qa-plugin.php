@@ -1,15 +1,15 @@
 <?php
 /*
 	Plugin Name: Best Users per Month
-	Plugin URI: https://github.com/echteinfachtv/q2a-best-users-per-month
+	Plugin URI: https://github.com/ElephantsGroup/q2a-best-users-per-month
 	Plugin Description: Displays the best users (with most points) of the current month in a widget and on a separate page
-	Plugin Version: 1.1
-	Plugin Date: 2012-07-10
+	Plugin Version: 1.2.0
+	Plugin Date: 2014-02-22
 	Plugin Author: q2apro.com
 	Plugin Author URI: http://www.q2apro.com
 	Plugin License: GPLv3
 	Plugin Minimum Question2Answer Version: 1.5
-	Plugin Update Check URI: https://raw.github.com/echteinfachtv/q2a-best-users-per-month/master/qa-plugin.php
+	Plugin Update Check URI: https://raw.github.com/ElephantsGroup/q2a-best-users-per-month/master/qa-plugin.php
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ qa_register_plugin_layer('qa-best-users-per-month-layer.php', 'Add Subnav to Pag
 
 
 /* custom functions */
-function get_year_months($date1, $date2) {
+function get_year_months_en($date1, $date2) {
    $time1  = strtotime($date1);
    $time2  = strtotime($date2);
    $my     = date('mY', $time2);
@@ -63,8 +63,27 @@ function get_year_months($date1, $date2) {
    return $months;
 }
 
-
-
-/*
-	Omit PHP closing tag to help avoid accidental output
-*/
+function get_year_months_fa($date1, $date2) {
+   $time1 = strtotime($date1);
+   $time2 = strtotime($date2);
+   $begin_date = jgetdate($time1);
+   $year = $begin_year = $begin_date['year'];
+   $month = $begin_month = $begin_date['mon'];
+   $month_name = $begin_date['month'];
+   
+   $end_date = jgetdate($time2);
+   $end_year = $end_date['year'];
+   $end_month = $end_date['mon'];
+   
+   $months = array();
+   
+   while($year <= $end_year || ($year == $end_year and $month <= $end_month))
+   {
+      $time = jmktime(0, 0, 0, $month, 1, $year);
+	  $month_name = jgetdate($time)['month'];
+      $months[$month_name . ' ' . $year] = date('Y-m-d', $time);
+	  if($month < 12) $month++;
+	  else { $year++; $month=1; }
+   }
+   return $months;
+}

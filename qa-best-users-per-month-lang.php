@@ -27,21 +27,34 @@
 	/* this file is UTF-8 encoded, you can use your language characters without worries */
 	
 	return array(
+		// admin
+		'admin_notable' => 'Database table is not set up yet.',
+		'admin_create_table' => 'Create table',
+		'admin_active' => 'activate best user per month',
+		'admin_active_note' => 'Untick to deactivate.',
+		'admin_date_type' => 'date type',
+		'admin_georgian' => 'Georgian',
+		'admin_jalali' => 'Jalali',
+		'cronjob_button' => 'cronjob',
+		'cronjob_success' => 'cronjob executed successfully.',
+		'cronjob_failed' => 'cronjob failed to run.',
+		'cronjob_exists' => 'cronjob could not run for this month.',
+
 		// widget + page
-		'best_users' => 'Klügste Köpfe',			// your language string for 'best users'
-		'points' => 'Punkte',						// your language string for 'points'
-		'rewardline_widget' => 'Prämien je Monat', 	// tell your users about monthly rewards/premiums
-		'reward_1' => 'Platz 1: 20 Euro', 			// this is for the 1st winner
-		'reward_2' => 'Platz 2: 10 Euro',			// this is for the 2nd winner
-		'reward_title' => 'Jeden Monat erhalten die besten Mitglieder eine Prämie!', // the mousetip when mouse is over reward field: <p class="rewardlist" title="x">...</p>
+		'best_users' => 'Best Users',			// your language string for 'best users'
+		'points' => 'points',						// your language string for 'points'
+		'rewardline_widget' => 'Rewards', 	// tell your users about monthly rewards/premiums
+		'reward_1' => 'First place: ...', 			// this is for the 1st winner
+		'reward_2' => 'Second place: ...',			// this is for the 2nd winner
+		'reward_title' => 'Rewards for this month best users!', // the mousetip when mouse is over reward field: <p class="rewardlist" title="x">...</p>
 		
 		// on page only
-		'page_title' => 'Beste Mitglieder je Monat (Top 20)', // best users of each month (top 20)
-		'choose_month' => 'Monat wählen:', 
-		'rewardline_onpage' => 'Monatliche Prämien: 1. Platz: 20 Euro | 2. Platz: 10 Euro', // tell your users about monthly rewards/premiums
+		'page_title' => 'Best users per month (20 first places)', // best users of each month (top 20)
+		'choose_month' => 'choose month:', 
+		'rewardline_onpage' => 'Rewards: 1. Place: ... | 2. Place: ...', // tell your users about monthly rewards/premiums
 		
 		// subnavigation on all users page
-		'subnav_title' => 'Monatsbeste', // best users of the month
+		'subnav_title' => 'Best Users', // best users of the month
 	);
 	
 
