@@ -39,24 +39,23 @@ class qa_best_users_per_month_admin
 
 		if ( qa_clicked('bupm_cronjob') )
 		{
-			//require_once( '../../../qa-config.php' );
-			mysql_connect(QA_MYSQL_HOSTNAME, QA_MYSQL_USERNAME, QA_MYSQL_PASSWORD) or die(mysql_error());
-			mysql_select_db(QA_MYSQL_DATABASE) or die(mysql_error());
-			
 			// get current month from today
 			$date = date('Y-m-d');
 			
 			// MONTH 
 			// to avoid double entries, check if cronjob was not already run for THIS MONTH
-			$checkResult = mysql_query("SELECT `date` FROM `qa_userscores` 
-											WHERE YEAR(`date`) = YEAR('".$date."') 
-											AND MONTH(`date`) = MONTH('".$date."');") or die(mysql_error());
-			if (mysql_num_rows($checkResult) > 0) { 
+			$sql = "SELECT `date` FROM `^userscores` 
+						WHERE YEAR(`date`) = YEAR('".$date."') 
+						AND MONTH(`date`) = MONTH('".$date."');";
+			$result = qa_db_query_sub($sql);
+			$rows = qa_db_read_all_assoc($result);
+			if (count($rows) > 0) { 
 				$saved_msg = qa_lang_html('qa_best_users_lang/cronjob_exists');
 			}
 			else {
 				try {
-					mysql_query("INSERT INTO `qa_userscores` (userid, points, date) SELECT userid, points, '".$date."' AS date from `qa_userpoints` ORDER BY userid ASC;");
+					$sql = "INSERT INTO `^userscores` (userid, points, date) SELECT userid, points, '".$date."' AS date from `^userpoints` ORDER BY userid ASC;";
+					qa_db_query_sub($sql);
 					$saved_msg = qa_lang_html('qa_best_users_lang/cronjob_success');
 				}
 				catch(exception $extp) {
