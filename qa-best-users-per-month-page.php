@@ -128,12 +128,12 @@
 				// 'title' => 'Form title',
 				'fields' => array(
 					'request' => array(
-						'id' => 'dropdown', 
+						'type' => 'select',
 						'label' => $lang_choose_month, 
 						'tags' => 'NAME="request" onchange="this.form.submit()" id="dropdown_select"',
-						'type' => 'select',
+						'id' => 'dropdown', 
+						'value' => @$dropdown_options[qa_post_text('request')],
 						'options' => $dropdown_options,
-						'value' => qa_post_text('request'),
 						//'error' => qa_html('Another error'),
 					),
 				),
@@ -229,14 +229,22 @@
 				// no users with 0 points, and no blocked users!
 				if($val>0) {
 					$currentUser = $usernames[$userId];
-					$user = qa_db_select_with_pending( qa_db_user_account_selectspec($currentUser, false) );
-					// check if user is blocked, do not list them
-					if (! (QA_USER_FLAGS_USER_BLOCKED & $user['flags'])) {
-						// points below user name, check CSS descriptions for .bestusers
-						$bestusers .= "<li>" . qa_get_user_avatar_html($user['flags'], $user['email'], $user['handle'], $user['avatarblobid'], $user['avatarwidth'], $user['avatarheight'], qa_opt('avatar_users_size'), false) . " " . qa_get_one_user_html($usernames[$userId], false).' <p class="uscore">'.$val.' '.$lang_points.'</p></li>'; 
-						
-						// max users to display 
+					if(QA_FINAL_EXTERNAL_USERS)
+					{
+						$bestusers .= "<li>" . $currentUser . "<p class=\"uscore\">" . $val . " " . $lang_points . "</p></li>";
 						if(++$nrUsers >= $maxusers) break;
+					}
+					else
+					{
+						$user = qa_db_select_with_pending( qa_db_user_account_selectspec($currentUser, false) );
+						// check if user is blocked, do not list them
+						if (! (QA_USER_FLAGS_USER_BLOCKED & $user['flags'])) {
+							// points below user name, check CSS descriptions for .bestusers
+							$bestusers .= "<li>" . qa_get_user_avatar_html($user['flags'], $user['email'], $user['handle'], $user['avatarblobid'], $user['avatarwidth'], $user['avatarheight'], qa_opt('avatar_users_size'), false) . " " . qa_get_one_user_html($usernames[$userId], false).' <p class="uscore">'.$val.' '.$lang_points.'</p></li>'; 
+							
+							// max users to display 
+							if(++$nrUsers >= $maxusers) break;
+						}
 					}
 				}
 			}
@@ -249,7 +257,7 @@
 			if(qa_opt('bupm_date_type') == 1)
 				$monthName = date("m/Y", strtotime($chosenMonth) );
 			else if(qa_opt('bupm_date_type') == 2)
-				$monthName = jgetdate(strtotime($chosenMonth))['month'];
+				$monthName = jgetdate(strtotime($chosenMonth))['month'] . ' ' . jgetdate(strtotime($chosenMonth))['year'];
 			
 			$qa_content['custom'.++$c]='<div style="font-size:16px;margin-bottom:18px;"><b>'.$lang_best_users.' '.$monthName.'</b></div>'; 
 			$qa_content['custom'.++$c]= $bestusers;
@@ -260,7 +268,7 @@
 			$qa_content['custom'.++$c] = '<style type="text/css">#dropdown .qa-form-wide-label { width:120px; text-align:center; } #dropdown .qa-form-wide-data { width:120px; text-align:center; }</style>'; 
 			
 			// jquery workaround (or call it hack) to select the current month in dropdown
-			$qa_content['custom'.++$c] = ' <script type="text/javascript">$(document).ready(function(){  $("select#dropdown_select").val(\''.$intervalStart.'\') }); </script>';
+			//$qa_content['custom'.++$c] = ' <script type="text/javascript">$(document).ready(function(){  $("select#dropdown_select").val(\''.$intervalStart.'\') }); </script>';
 			
 			// as I said, this is one chance to say thank you
 			if($creditDeveloper) {

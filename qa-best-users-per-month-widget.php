@@ -113,15 +113,23 @@ class qa_best_users_per_month_widget {
 			// no users with 0 points, and no blocked users!
 			if($val>0) {
 				$currentUser = $usernames[$userId];
-				$user = qa_db_select_with_pending( qa_db_user_account_selectspec($currentUser, false) );
-				// check if user is blocked
-				if (! (QA_USER_FLAGS_USER_BLOCKED & $user['flags'])) {
-					// points below user name, check CSS descriptions for .bestusers
-					$bestusers .= "<li>" . qa_get_user_avatar_html($user['flags'], $user['email'], $user['handle'], $user['avatarblobid'], $user['avatarwidth'], $user['avatarheight'], qa_opt('avatar_users_size'), false) . " " . qa_get_one_user_html($usernames[$userId], false).' <p class="uscore">'.$val.' '.$pointsLang.'</p></li>
-					';
-
-					// max users to display 
+				if(QA_FINAL_EXTERNAL_USERS)
+				{
+					$bestusers .= "<li>" . $currentUser . "<p class=\"uscore\">" . $val . " " . $pointsLang . "</p></li>";
 					if(++$nrUsers >= $maxusers) break;
+				}
+				else
+				{
+					$user = qa_db_select_with_pending( qa_db_user_account_selectspec($currentUser, false) );
+					// check if user is blocked
+					if (! (QA_USER_FLAGS_USER_BLOCKED & $user['flags'])) {
+						// points below user name, check CSS descriptions for .bestusers
+						$bestusers .= "<li>" . qa_get_user_avatar_html($user['flags'], $user['email'], $user['handle'], $user['avatarblobid'], $user['avatarwidth'], $user['avatarheight'], qa_opt('avatar_users_size'), false) . " " . qa_get_one_user_html($usernames[$userId], false).' <p class="uscore">'.$val.' '.$pointsLang.'</p></li>
+						';
+
+						// max users to display 
+						if(++$nrUsers >= $maxusers) break;
+					}
 				}
 			}
 		}
@@ -141,7 +149,7 @@ class qa_best_users_per_month_widget {
 		if(qa_opt('bupm_date_type') == 1)
 			$monthName = date('m/Y'); // 2 digit month and 4 digit year
 		else if(qa_opt('bupm_date_type') == 2)
-			$monthName = jgetdate()['month'];
+			$monthName = jgetdate()['month'] . ' ' . jgetdate()['year'];
 
 		$themeobject->output('<div style="font-size:14px;margin-bottom:18px;"><a style="font-weight:bold;" href="'.qa_opt('site_url').'bestusers">'.$langActUsers.'</a> <span style="font-size:12px;">'.$monthName.'</span></div>'); 
 		$themeobject->output( $bestusers );
