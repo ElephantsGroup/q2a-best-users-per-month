@@ -31,6 +31,9 @@ if ( !defined('QA_VERSION') )
 	exit;
 }
 
+// admin
+qa_register_plugin_module('module', 'qa-best-users-per-month-admin.php', 'qa_best_users_per_month_admin', 'Best Users per Month Admin');
+
 // widget
 qa_register_plugin_module('widget', 'qa-best-users-per-month-widget.php', 'qa_best_users_per_month_widget', 'Best Users per Month');
 
