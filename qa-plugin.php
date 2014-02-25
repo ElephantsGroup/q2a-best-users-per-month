@@ -3,8 +3,8 @@
 	Plugin Name: Best Users per Month
 	Plugin URI: https://github.com/ElephantsGroup/q2a-best-users-per-month
 	Plugin Description: Displays the best users (with most points) of the current month in a widget and on a separate page
-	Plugin Version: 1.2.2
-	Plugin Date: 2014-02-23
+	Plugin Version: 1.3.0
+	Plugin Date: 2014-02-26
 	Plugin Author: q2apro.com
 	Plugin Author URI: http://www.q2apro.com
 	Plugin License: GPLv3
@@ -41,7 +41,7 @@ qa_register_plugin_module('widget', 'qa-best-users-per-month-widget.php', 'qa_be
 qa_register_plugin_module('page', 'qa-best-users-per-month-page.php', 'qa_best_users_per_month_page', 'Best Users Page');
 
 // language file
-qa_register_plugin_phrases('qa-best-users-per-month-lang.php', 'qa_best_users_lang');
+qa_register_plugin_phrases('lang/qa-best-users-per-month-lang-*.php', 'qa_best_users_lang');
 
 // change default users page, add subnavigation "best users"
 qa_register_plugin_layer('qa-best-users-per-month-layer.php', 'Add Subnav to Page Layer');

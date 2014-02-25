@@ -9,7 +9,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 
 		global $qa_request;
 		// adds subnavigation to pages bestusers and users
-		if($qa_request == 'bestusers' || $qa_request == 'users' ) {
+		if((bool)qa_opt('bupm_active') && ($qa_request == 'bestusers' || $qa_request == 'users')) {
 			$this->content['navigation']['sub'] = array(
 				'users' => array(
 					'url' => qa_path_html('users'),

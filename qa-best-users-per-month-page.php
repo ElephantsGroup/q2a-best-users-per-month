@@ -16,7 +16,7 @@
 		{	
 			return array(
 				array(
-					'title' => 'Best Users per Month Page', // title of page
+					'title' => qa_lang_html('qa_best_users_lang/best_users_per_month_page'), // title of page
 					'request' => 'bestusers', // request name
 					'nav' => 'M', // 'M'=main, 'F'=footer, 'B'=before main, 'O'=opposite main, null=none
 				),
@@ -35,22 +35,57 @@
 
 		function process_request($request)
 		{
+			$lang_page_title = qa_lang_html('qa_best_users_lang/page_title');
+
+			if(!(bool)qa_opt('bupm_active'))
+			{
+				/* start */
+				$qa_content=qa_content_prepare();
+
+				// add sub navigation (remove for plugin release)
+				// $qa_content['navigation']['sub']=qa_users_sub_navigation();
+				
+				$qa_content['title'] = $lang_page_title; // list title
+				$qa_content['error']=qa_lang_html('qa_best_users_lang/plugin_is_not_activated');
+				return $qa_content;
+			}
 			require_once 'jdf.php';
 			/* SETTINGS */
-			$maxusers = 20; 			// max users to display 
-			$adminID = 1;				// if you want the admin not considered in the userpoints list, define his id here (set 0 if admin should be in)
+			$maxusers = (int)qa_opt('bupm_page_users_count'); 			// max users to display 
 			$showReward = true; 		// false to hide rewards
 			$creditDeveloper = true;	// leave this true if you like this plugin, it sets one hidden link to my q2a-forum from the best-user-page only
-			
-			
+			$excluded_users = array(0);
+
+			if((bool)qa_opt('best_users_EExU'))
+			{
+				foreach(explode(',', qa_opt('best_users_ExU')) as $id)
+					$excluded_users[] = $id;
+				
+				if(QA_FINAL_EXTERNAL_USERS && (bool)qa_opt('best_users_EEU'))
+				{
+				}
+				else
+				{
+					$excluded_users_query = qa_db_query_sub("SELECT userid FROM `^users` WHERE level=" . QA_USER_LEVEL_SUPER); 
+					$rows = qa_db_read_all_assoc($excluded_users_query);
+					foreach($rows as $row)
+						$excluded_users[] = $row['userid'];
+				}
+			}
+						
 			/* TRANSFER LANGUAGE STRINGS */
-			$lang_page_title = qa_lang_html('qa_best_users_lang/page_title');
 			$lang_choose_month = qa_lang_html('qa_best_users_lang/choose_month');
 			$lang_best_users = qa_lang_html('qa_best_users_lang/best_users');
 			$lang_points = qa_lang_html('qa_best_users_lang/points');
 			
-			
-			$showRewardOnTop = '<p style="font-size:14px;width:650px;margin-left:2px;line-height:140%;">' .qa_lang_html('qa_best_users_lang/rewardline_onpage') . "</p>";
+			$rewards = explode(',', qa_opt('best_users_rewards'));
+			foreach($rewards as $i=>$reward)
+				if($reward)
+					$rewards_text[] = qa_lang_html_sub('qa_best_users_lang/reward_n', ($i+1)) . ' ' . $reward;
+
+			$showRewardOnTop = '<p style="font-size:14px;width:650px;margin-left:2px;line-height:140%;">';
+				if(@$rewards_text) $showRewardOnTop .= implode(' | ', $rewards_text);
+			$showRewardOnTop .= '</p>';
 			
 			
 			/* start */
@@ -160,7 +195,7 @@
 									(SELECT userid, MAX(date) AS mdate FROM ^userscores GROUP BY userid) T
 									ON US.userid=T.userid AND US.date=T.mdate)
 									TT ON UP.userid=TT.userid
-									WHERE UP.userid != ".$adminID."
+									WHERE UP.userid NOT IN (".implode(',', $excluded_users).")
 									ORDER BY mpoints DESC, UP.userid DESC;");
 				// thanks srini.venigalla for helping me with advanced mysql
 				// http://stackoverflow.com/questions/11085202/calculate-monthly-userscores-between-two-tables-using-mysql
@@ -174,7 +209,7 @@
 											LEFT JOIN (SELECT userid, points FROM `^userscores` WHERE `date` = '".$intervalStart."') AS uf
 											ON uf.userid = ul.userid
 											WHERE ul.date = '".$intervalEnd."'
-											AND ul.userid != ".$adminID."
+											AND ul.userid NOT IN (".implode(',', $excluded_users).")
 											ORDER BY mpoints DESC;"
 										);
 				else if(qa_opt('bupm_date_type') == 2)
@@ -229,9 +264,9 @@
 				// no users with 0 points, and no blocked users!
 				if($val>0) {
 					$currentUser = $usernames[$userId];
-					if(QA_FINAL_EXTERNAL_USERS)
+					if(QA_FINAL_EXTERNAL_USERS && (bool)qa_opt('best_users_EEU'))
 					{
-						$bestusers .= "<li>" . $currentUser . "<p class=\"uscore\">" . $val . " " . $lang_points . "</p></li>";
+						$bestusers .= "<li><a href=\"" . qa_path('user/'.$currentUser) . "\">" . $currentUser . "</a><p class=\"uscore\">" . $val . " " . $lang_points . "</p></li>";
 						if(++$nrUsers >= $maxusers) break;
 					}
 					else
@@ -277,7 +312,7 @@
 			
 
 			// WIDGET CALL: we want the best-user-widget also to be displayed on this page
-			$widget['title'] = "Best Users per Month";
+			$widget['title'] = 'Best Users per Month';
 			$module=qa_load_module('widget', $widget['title']);
 			$region = "side";
 			$place = "high";

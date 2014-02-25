@@ -49,15 +49,42 @@ class qa_best_users_per_month_widget {
 
 	function output_widget($region, $place, $themeobject, $template, $request, $qa_content)
 	{
+		if(!(bool)qa_opt('bupm_active'))
+			return;
 		require_once 'jdf.php';
 		/* Settings */
-		$maxusers = 4;			// max users to display in widget
-		$adminID = 1;			// if you want the admin not to be considered in the userpoints list, define his id here (set 0 if admin should be displayed)
-		$showReward = true; 	// false to hide rewards
-		
+		$maxusers = (int)qa_opt('bupm_widget_users_count');			// max users to display in widget
+		$showReward = false; 	// false to hide rewards
+		$excluded_users = array(0);
+
+		if((bool)qa_opt('best_users_EExU'))
+		{
+			foreach(explode(',', qa_opt('best_users_ExU')) as $id)
+				$excluded_users[] = $id;
+			
+			if(QA_FINAL_EXTERNAL_USERS && (bool)qa_opt('best_users_EEU'))
+			{
+			}
+			else
+			{
+				$excluded_users_query = qa_db_query_sub("SELECT userid FROM `^users` WHERE level=" . QA_USER_LEVEL_SUPER); 
+				$rows = qa_db_read_all_assoc($excluded_users_query);
+				foreach($rows as $row)
+					$excluded_users[] = $row['userid'];
+			}
+		}
+
+		$rewards = explode(',', qa_opt('best_users_rewards'));
 		$langActUsers = qa_lang_html('qa_best_users_lang/best_users');		// language string for 'best users'
 		$pointsLang = qa_lang_html('qa_best_users_lang/points'); 			// language string for 'points'
-		$rewardHtml = '<p class="rewardlist" title="'.qa_lang_html('qa_best_users_lang/reward_title').'"><b>'.qa_lang_html('qa_best_users_lang/rewardline_widget').'</b><br />'.qa_lang_html('qa_best_users_lang/reward_1').'<br />'.qa_lang_html('qa_best_users_lang/reward_2').'</p>';
+		$rewardHtml = '<p class="rewardlist" title="'.qa_lang_html('qa_best_users_lang/reward_title').'"><b>'.qa_lang_html('qa_best_users_lang/rewardline_widget').'</b><br />';
+		foreach($rewards as $i=>$reward)
+			if($reward)
+			{
+				$rewardHtml .= qa_lang_html_sub('qa_best_users_lang/reward_n', ($i+1)) . ' ' . $reward . '<br />';
+				$showReward = true;
+			}
+		$rewardHtml .= '</p>';
 		
 		
 		/* 	CSS: 
@@ -83,7 +110,7 @@ class qa_best_users_per_month_widget {
 								(SELECT userid, MAX(date) AS mdate FROM ^userscores GROUP BY userid) T
 								ON US.userid=T.userid AND US.date=T.mdate)
 								TT ON UP.userid=TT.userid
-								WHERE UP.userid != ".$adminID."
+								WHERE UP.userid NOT IN (".implode(',', $excluded_users).")
 								ORDER BY mpoints DESC, UP.userid DESC;");
 
 		
@@ -113,9 +140,9 @@ class qa_best_users_per_month_widget {
 			// no users with 0 points, and no blocked users!
 			if($val>0) {
 				$currentUser = $usernames[$userId];
-				if(QA_FINAL_EXTERNAL_USERS)
+				if(QA_FINAL_EXTERNAL_USERS && (bool)qa_opt('best_users_EEU'))
 				{
-					$bestusers .= "<li>" . $currentUser . "<p class=\"uscore\">" . $val . " " . $pointsLang . "</p></li>";
+					$bestusers .= "<li><a href=\"" . qa_path('user/'.$currentUser) . "\">" . $currentUser . "</a><p class=\"uscore\">" . $val . " " . $pointsLang . "</p></li>";
 					if(++$nrUsers >= $maxusers) break;
 				}
 				else

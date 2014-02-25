@@ -6,12 +6,16 @@ class qa_best_users_per_month_admin
 {
 	private $optactive = 'bupm_active';
 	private $date_type = 'bupm_date_type';
-	/*private $ninja_edit_time = 'best_users_NET';
-	private $view_permission = 'best_users_view_permission';
+	private $page_users_count = 'bupm_page_users_count';
+	private $widget_users_count = 'bupm_widget_users_count';
+	/*private $view_permission = 'best_users_view_permission';*/
 	private $enabled_external_users = 'best_users_EEU';
 	private $external_users_table = 'best_users_EUT';
 	private $external_users_table_key = 'best_users_EUTK';
-	private $external_users_table_handle = 'best_users_EUTH';*/
+	private $external_users_table_handle = 'best_users_EUTH';
+	private $enabled_excluded_users = 'best_users_EExU';
+	private $excluded_users = 'best_users_ExU';
+	private $rewards = 'best_users_rewards';
 
 	// initialize db-table 'userscores' if it does not exist yet
 	function init_queries($tableslc)
@@ -36,7 +40,15 @@ class qa_best_users_per_month_admin
 		$error = null;
 		$date_types = array( 1 => qa_lang_html('qa_best_users_lang/admin_georgian'), 2 => qa_lang_html('qa_best_users_lang/admin_jalali'));
 		//$permitoptions = qa_admin_permit_options(QA_PERMIT_ALL, QA_PERMIT_SUPERS, false, false);
+		$rewards = explode(',', qa_opt($this->rewards));
+		$post = @$_POST['rewards'];
+		$deleted = @$_POST['deleted_rewards'];
 
+		if ( qa_clicked('bupm_add_reward') )
+		{
+			$rewards = $this->save_rewards( $post, $deleted );
+			$rewards[] = '';
+		}
 		if ( qa_clicked('bupm_cronjob') )
 		{
 			// get current month from today
@@ -87,23 +99,33 @@ class qa_best_users_per_month_admin
 			else
 				qa_opt( $this->optactive, '0' );
 			qa_opt( $this->date_type, (int)qa_post_text('date_type') );
+			qa_opt( $this->page_users_count, (int)qa_post_text('page_users_count') );
+			qa_opt( $this->widget_users_count, (int)qa_post_text('widget_users_count') );
 			/*qa_opt( $this->ninja_edit_time, (int)qa_post_text('ninja_edit_time') );
-			qa_opt( $this->view_permission, (int)qa_post_text('view_permission') );
+			qa_opt( $this->view_permission, (int)qa_post_text('view_permission') );*/
 			if ( qa_post_text('enabled_external_users') ) qa_opt( $this->enabled_external_users, '1' );
 			else qa_opt( $this->enabled_external_users, '0' );
 			qa_opt( $this->external_users_table, qa_post_text('external_users_table') );
 			qa_opt( $this->external_users_table_key, qa_post_text('external_users_table_key') );
-			qa_opt( $this->external_users_table_handle, qa_post_text('external_users_table_handle') );*/
+			qa_opt( $this->external_users_table_handle, qa_post_text('external_users_table_handle') );
+			if ( qa_post_text('enabled_excluded_users') ) qa_opt( $this->enabled_excluded_users, '1' );
+			else qa_opt( $this->enabled_excluded_users, '0' );
+			qa_opt( $this->excluded_users, qa_post_text('excluded_users') );
+			$rewards = $this->save_rewards( $post, $deleted );
 		}
 
 		$bupm_active = qa_opt($this->optactive);
 		$date_type = qa_opt($this->date_type);
+		$page_users_count = qa_opt($this->page_users_count);
+		$widget_users_count = qa_opt($this->widget_users_count);
 		/*$ninja_edit_time = qa_opt($this->ninja_edit_time);
-		$view_permission = qa_opt($this->view_permission);
+		$view_permission = qa_opt($this->view_permission);*/
 		$enabled_external_users = qa_opt($this->enabled_external_users);
 		$external_users_table = qa_opt($this->external_users_table);
 		$external_users_table_key = qa_opt($this->external_users_table_key);
-		$external_users_table_handle = qa_opt($this->external_users_table_handle);*/
+		$external_users_table_handle = qa_opt($this->external_users_table_handle);
+		$enabled_excluded_users = qa_opt($this->enabled_excluded_users);
+		$excluded_users = qa_opt($this->excluded_users);
 
 		$form = array(
 			'ok' => $saved_msg,
@@ -123,46 +145,66 @@ class qa_best_users_per_month_admin
 					'value' =>  @$date_types[$date_type],
 					'options' => $date_types,
 				),
-				/*array(
-					'type' => 'number',
-					'label' => qa_lang_html('edithistory/ninja_edit_time'),
-					'suffix' => qa_lang_html('edithistory/seconds'),
-					'tags' => 'NAME="ninja_edit_time"',
-					'value' => $ninja_edit_time,
-					'note' => qa_lang_html('edithistory/ninja_edit_time_note'),
+				array(
+					'type' => 'select',
+					'label' => qa_lang_html('qa_best_users_lang/page_users_count'),
+					'tags' => 'NAME="page_users_count"',
+					'value' =>  $page_users_count,
+					'options' => array(5=>5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20),
 				),
 				array(
+					'type' => 'select',
+					'label' => qa_lang_html('qa_best_users_lang/widget_users_count'),
+					'tags' => 'NAME="widget_users_count"',
+					'value' =>  $widget_users_count,
+					'options' => array(2=>2, 3, 4, 5, 6, 7),
+				),
+				/*array(
 					'type' => 'select',
 					'label' => qa_lang_html('edithistory/view_permission'),
 					'tags' => 'NAME="view_permission"',
 					'value' =>  @$permitoptions[$view_permission],
 					'options' => $permitoptions,
 					'note' => qa_lang_html('edithistory/view_permission_note'),
-				),
+				),*/
 				array(
 					'type' => 'checkbox',
-					'label' => qa_lang_html('edithistory/enabled_external_users'),
+					'label' => qa_lang_html('qa_best_users_lang/enabled_external_users'),
 					'tags' => 'NAME="enabled_external_users"',
 					'value' => $enabled_external_users === '1',
 				),
 				array(
 					'type' => 'text',
-					'label' => qa_lang_html('edithistory/external_users_table'),
+					'label' => qa_lang_html('qa_best_users_lang/external_users_table'),
 					'tags' => 'NAME="external_users_table"',
 					'value' => $external_users_table,
 				),
 				array(
 					'type' => 'text',
-					'label' => qa_lang_html('edithistory/external_users_table_key'),
+					'label' => qa_lang_html('qa_best_users_lang/external_users_table_key'),
 					'tags' => 'NAME="external_users_table_key"',
 					'value' => $external_users_table_key,
 				),
 				array(
 					'type' => 'text',
-					'label' => qa_lang_html('edithistory/external_users_table_handle'),
+					'label' => qa_lang_html('qa_best_users_lang/external_users_table_handle'),
 					'tags' => 'NAME="external_users_table_handle"',
 					'value' => $external_users_table_handle,
-				),*/
+				),
+				array(
+					'type' => 'checkbox',
+					'label' => qa_lang_html('qa_best_users_lang/enabled_excluded_users'),
+					'tags' => 'NAME="enabled_excluded_users"',
+					'value' => $enabled_excluded_users === '1',
+					'note' => qa_lang_html('qa_best_users_lang/enabled_excluded_users_note'),
+				),
+				array(
+					'type' => 'text',
+					'label' => qa_lang_html('qa_best_users_lang/excluded_users'),
+					'tags' => 'NAME="excluded_users"',
+					'value' => $excluded_users,
+					'note' => qa_lang_html('qa_best_users_lang/excluded_users_note'),
+				),
 			),
 
 			'buttons' => array(
@@ -171,12 +213,30 @@ class qa_best_users_per_month_admin
 					'tags' => 'name="bupm_save"',
 				),
 				array(
+					'label' => qa_lang_html('qa_best_users_lang/add_reward_button'),
+					'tags' => 'name="bupm_add_reward"',
+				),
+				array(
 					'label' => qa_lang_html('qa_best_users_lang/cronjob_button'),
 					'tags' => 'name="bupm_cronjob"',
 				),
 			),
 
 		);
+		
+		for ( $i = 0, $len = count($rewards); $i < $len; $i++ )
+		{
+			$form['fields'][] = array(
+					'label' => qa_lang_html_sub('qa_best_users_lang/reward_n', ($i+1)),
+					'tags' => 'name="rewards['.$i.']"',
+					'value' => qa_html($rewards[$i]),
+					'note' => '<label style="white-space:nowrap"><input type="checkbox" name="deleted_rewards['.$i.']"> ' .
+						qa_lang_html('qa_best_users_lang/delete_reward') . '</label>',
+				);
+			$form['fields'][] = array(
+				'type' => 'blank',
+			);
+		}
 
 		if ( $error !== null )
 			$form['fields'][] = $error;
@@ -184,4 +244,19 @@ class qa_best_users_per_month_admin
 		return $form;
 	}
 
+	private function save_rewards( $data, $deleted )
+	{
+		$rewards = array();
+		foreach ( $data as $i=>$reward )
+		{
+			if ( !isset( $deleted[$i] ) )
+			{
+				$rewards[] = $reward;
+			}
+		}
+
+		qa_opt( $this->rewards, implode(',', $rewards) );
+
+		return $rewards;
+	}
 }

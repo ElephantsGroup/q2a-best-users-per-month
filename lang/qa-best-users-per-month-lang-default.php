@@ -27,6 +27,7 @@
 	/* this file is UTF-8 encoded, you can use your language characters without worries */
 	
 	return array(
+
 		// admin
 		'admin_notable' => 'Database table is not set up yet.',
 		'admin_create_table' => 'Create table',
@@ -39,14 +40,28 @@
 		'cronjob_success' => 'cronjob executed successfully.',
 		'cronjob_failed' => 'cronjob failed to run.',
 		'cronjob_exists' => 'cronjob could not run for this month.',
+		'enabled_external_users' => 'Enable external users',
+		'external_users_table' => 'External users table name',
+		'external_users_table_key' => 'External users table key name',
+		'external_users_table_handle' => 'External users table handle field name',
+		'page_users_count' => 'Number of displayed best users in page',
+		'widget_users_count' => 'Number of displayed best users in widget',
+		'enabled_excluded_users' => 'Enable excluded users',
+		'enabled_excluded_users_note' => 'Do you want to exclude some users (e.g. admin, moderators, ...) from best users list?',
+		'excluded_users' => 'Excluded users ids',
+		'excluded_users_note' => 'Enter comma separated list of excluded users ids (e.g. 1,2,3).',
+		'add_reward_button' => 'Add a reward',
+		'reward_n' => 'Rewads for user ^:',
+		'delete_reward' => 'Delete Reward',
 
 		// widget + page
 		'best_users' => 'Best Users',			// your language string for 'best users'
 		'points' => 'points',						// your language string for 'points'
 		'rewardline_widget' => 'Rewards', 	// tell your users about monthly rewards/premiums
-		'reward_1' => 'First place: ...', 			// this is for the 1st winner
-		'reward_2' => 'Second place: ...',			// this is for the 2nd winner
 		'reward_title' => 'Rewards for this month best users!', // the mousetip when mouse is over reward field: <p class="rewardlist" title="x">...</p>
+		'best_users_per_month' => 'Best Users per Month',
+		'best_users_per_month_page' => 'Best Users per Month Page',
+		'plugin_is_not_activated' => 'This page is deactivated.',
 		
 		// on page only
 		'page_title' => 'Best users per month (20 first places)', // best users of each month (top 20)
