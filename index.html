@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Q2a-best-users-per-month by ElephantsGroup</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Q2a-best-users-per-month</h1>
+        <h2>This is a plugin for Question2Answer that displays the best users of the current month in a widget and on a separate page</h2>
+        <a href="https://github.com/ElephantsGroup/q2a-best-users-per-month" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1></h1>
+
+<h1>
+<a name="question2answer-best-users-per-month-v13" class="anchor" href="#question2answer-best-users-per-month-v13"><span class="octicon octicon-link"></span></a>Question2Answer Best Users per Month v1.3</h1>
+
+<hr><h2>
+<a name="description" class="anchor" href="#description"><span class="octicon octicon-link"></span></a>Description</h2>
+
+<p>This is a plugin for <strong>Question2Answer</strong> that displays the best users of the current month in a widget and on a separate page</p>
+
+<hr><h2>
+<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h2>
+
+<ul>
+<li>displays a widget that holds the best users of the current month regarding their stored userpoints</li>
+<li>provides a page for showing best users of previous months, access-URL <code>your-q2a-installation.com/bestusers</code>
+</li>
+<li>the plugin creates a table "qa_userscores" in your database to store monthly userpoints</li>
+<li>you need to setup a cronjob for file "cronjob.php" that is called the first day of each month, so that monthly userscores get stored</li>
+<li>Before installing the plugin, please think about your point system (&gt;Admin &gt;Points). The points should not change over time, as the plugin stores recent userpoints each month over time. If you change userpoints later on, the userscores shown for the recent month could vary_ a lot.</li>
+</ul><p>.. _vary: <a href="http://www.question2answer.org/qa/16425/new-plugin-best-users-per-month-release-call-for-beta-users?show=16502#a16502">http://www.question2answer.org/qa/16425/new-plugin-best-users-per-month-release-call-for-beta-users?show=16502#a16502</a></p>
+
+<hr><h2>
+<a name="example" class="anchor" href="#example"><span class="octicon octicon-link"></span></a>Example</h2>
+
+<p>This plugin is used at <a href="http://www.gute-mathe-fragen.de">www.gute-mathe-fragen.de</a> (q2a-forum for mathematics). See also screenshot in the plugin files.</p>
+
+<hr><h2>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<h1>
+<a name="-install-question2answer_" class="anchor" href="#-install-question2answer_"><span class="octicon octicon-link"></span></a>. Install Question2Answer_</h1>
+
+<h1>
+<a name="-get-the-source-code-for-this-plugin-directly-from-github_" class="anchor" href="#-get-the-source-code-for-this-plugin-directly-from-github_"><span class="octicon octicon-link"></span></a>. Get the source code for this plugin directly from github_</h1>
+
+<h1>
+<a name="-extract-the-files" class="anchor" href="#-extract-the-files"><span class="octicon octicon-link"></span></a>. Extract the files.</h1>
+
+<h1>
+<a name="-change-language-strings-in-file-qa-best-users-per-month-langphp" class="anchor" href="#-change-language-strings-in-file-qa-best-users-per-month-langphp"><span class="octicon octicon-link"></span></a>. Change language strings in file <strong>qa-best-users-per-month-lang.php</strong>
+</h1>
+
+<h1>
+<a name="-optional-change-settings-in-file-qa-best-users-per-month-widgetphp-and-qa-best-users-per-month-pagephp" class="anchor" href="#-optional-change-settings-in-file-qa-best-users-per-month-widgetphp-and-qa-best-users-per-month-pagephp"><span class="octicon octicon-link"></span></a>. Optional: Change settings in file qa-best-users-per-month-widget.php and qa-best-users-per-month-page.php</h1>
+
+<h1>
+<a name="-upload-the-files-to-a-subfolder-called-best-users-per-month-inside-the-qa-plugins-folder-of-your-q2a-installation" class="anchor" href="#-upload-the-files-to-a-subfolder-called-best-users-per-month-inside-the-qa-plugins-folder-of-your-q2a-installation"><span class="octicon octicon-link"></span></a>. Upload the files to a subfolder called <code>best-users-per-month</code> inside the <code>qa-plugins</code> folder of your Q2A installation.</h1>
+
+<h1>
+<a name="-navigate-to-your-site-go-to-admin---plugins-on-your-q2a-install-check-if-plugin-best-users-per-month-is-listed-this-will-automatically-install-the-table-qa_userscores" class="anchor" href="#-navigate-to-your-site-go-to-admin---plugins-on-your-q2a-install-check-if-plugin-best-users-per-month-is-listed-this-will-automatically-install-the-table-qa_userscores"><span class="octicon octicon-link"></span></a>. Navigate to your site, go to <strong>Admin -&gt; Plugins</strong> on your q2a install. Check if plugin "Best Users per Month" is listed. This will automatically install the table qa_userscores.</h1>
+
+<h1>
+<a name="-then-go-to-admin-layout-available-widgets-and-add-the-widget-best-users-per-month-set-its-position-to-side-panel---below-sidebar-box" class="anchor" href="#-then-go-to-admin-layout-available-widgets-and-add-the-widget-best-users-per-month-set-its-position-to-side-panel---below-sidebar-box"><span class="octicon octicon-link"></span></a>. Then go to <strong>Admin &gt;Layout &gt;Available widgets</strong>, and add the widget "Best Users per Month", set its position to: Side panel - Below sidebar box</h1>
+
+<h1>
+<a name="-setup-a-cronjob_-for-file-qa-pluginbest-users-per-monthcronjobcronjobphp-and-call-it-the-first-day-of-each-month-it-stores-the-monthly-userpoints-into-table-qa_userscores" class="anchor" href="#-setup-a-cronjob_-for-file-qa-pluginbest-users-per-monthcronjobcronjobphp-and-call-it-the-first-day-of-each-month-it-stores-the-monthly-userpoints-into-table-qa_userscores"><span class="octicon octicon-link"></span></a>. Setup a cronjob_ for file <code>qa-plugin/best-users-per-month/cronjob/cronjob.php</code>, and call it the first day of each month (it stores the monthly userpoints into table qa_userscores)</h1>
+
+<h1>
+<a name="-run-cronjobphp-once-this-will-save-all-recent-userpoints-as-userscores-do-not-wonder-afterwards-all-userscores-will-start-with-0-points" class="anchor" href="#-run-cronjobphp-once-this-will-save-all-recent-userpoints-as-userscores-do-not-wonder-afterwards-all-userscores-will-start-with-0-points"><span class="octicon octicon-link"></span></a>. Run <strong>cronjob.php</strong> once. This will save all recent userpoints as userscores. Do not wonder: Afterwards all userscores will start with 0 points.</h1>
+
+<p>.. _Question2Answer: <a href="http://www.question2answer.org/install.php">http://www.question2answer.org/install.php</a>
+.. _github: <a href="https://github.com/ElephantsGroup/q2a-best-users-per-month">https://github.com/ElephantsGroup/q2a-best-users-per-month</a>
+.. _cronjob: <a href="http://www.question2answer.org/qa/16425/new-plugin-best-users-per-month-release-call-for-beta-users?show=16443#a16443">http://www.question2answer.org/qa/16425/new-plugin-best-users-per-month-release-call-for-beta-users?show=16443#a16443</a></p>
+
+<hr><h2>
+<a name="disclaimer" class="anchor" href="#disclaimer"><span class="octicon octicon-link"></span></a>Disclaimer</h2>
+
+<p>This is <strong>beta</strong> code. It is probably okay for production environments, but may not work exactly as expected. You bear the risk. Refunds will not be given!</p>
+
+<p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+See the GNU General Public License for more details.</p>
+
+<hr><h2>
+<a name="copyright" class="anchor" href="#copyright"><span class="octicon octicon-link"></span></a>Copyright</h2>
+
+<p>All code herein is OpenSource_. Feel free to build upon it and share with the world.</p>
+
+<p>.. _OpenSource: <a href="http://www.gnu.org/licenses/gpl.html">http://www.gnu.org/licenses/gpl.html</a></p>
+
+<hr><h2>
+<a name="about-q2a" class="anchor" href="#about-q2a"><span class="octicon octicon-link"></span></a>About q2a</h2>
+
+<p>Question2Answer is a free and open source platform for Q&amp;A sites. For more information, visit: <a href="http://www.question2answer.org">www.question2answer.org</a></p>
+
+<hr><h2>
+<a name="final-note" class="anchor" href="#final-note"><span class="octicon octicon-link"></span></a>Final Note</h2>
+
+<p>If you use the plugin:</p>
+
+<ul>
+<li>Consider joining the Question2Answer-Forum_, answer some questions or write your own plugin!</li>
+<li>You can use the code of this plugin to learn more about q2a-plugins. It is commented code.</li>
+<li>Thanks!</li>
+</ul><p>.. _Question2Answer-Forum: <a href="http://www.question2answer.org/qa/">http://www.question2answer.org/qa/</a></p>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/ElephantsGroup/q2a-best-users-per-month/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/ElephantsGroup/q2a-best-users-per-month/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/ElephantsGroup/q2a-best-users-per-month"></a> is maintained by <a href="https://github.com/ElephantsGroup">ElephantsGroup</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
