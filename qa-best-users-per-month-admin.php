@@ -281,21 +281,22 @@ class qa_best_users_per_month_admin
 		$rows = qa_db_read_all_assoc($result);
 		if (count($rows) == 0)
 			$ret = false;
-			
-		// check if id column exists
-		$sql = "SHOW COLUMNS FROM `$table` LIKE '$table_key'";
-		$result = qa_db_query_sub($sql);
-		$rows = qa_db_read_all_assoc($result);
-		if (count($rows) == 0)
-			$ret = false;
-			
-		// check if id column exists
-		$sql = "SHOW COLUMNS FROM `$table` LIKE '$table_handle'";
-		$result = qa_db_query_sub($sql);
-		$rows = qa_db_read_all_assoc($result);
-		if (count($rows) == 0)
-			$ret = false;
-			
+		else
+		{
+			// check if id column exists
+			$sql = "SHOW COLUMNS FROM `$table` LIKE '$table_key'";
+			$result = qa_db_query_sub($sql);
+			$rows = qa_db_read_all_assoc($result);
+			if (count($rows) == 0)
+				$ret = false;
+				
+			// check if id column exists
+			$sql = "SHOW COLUMNS FROM `$table` LIKE '$table_handle'";
+			$result = qa_db_query_sub($sql);
+			$rows = qa_db_read_all_assoc($result);
+			if (count($rows) == 0)
+				$ret = false;
+		}
 			
 		// check excluded users
 		$userids = explode(',', $_POST['excluded_users']);
