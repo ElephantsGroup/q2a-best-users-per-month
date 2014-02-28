@@ -53,6 +53,7 @@
 		'add_reward_button' => 'افزودن یک پاداش',
 		'reward_n' => 'پاداش نفر ^:',
 		'delete_reward' => 'حذف پاداش',
+		'incorrect_entry' => 'ورودی‌های اشتباه وارد شده است.',
 
 		// widget + page
 		'best_users' => 'بهترین کاربران',			// your language string for 'best users'
@@ -64,7 +65,7 @@
 		'plugin_is_not_activated' => 'این صفحه غیرفعال شده است.',
 		
 		// on page only
-		'page_title' => 'بهترین کاربران ماه (۲۰ نفر اول)', // best users of each month (top 20)
+		'page_title' => 'بهترین کاربران ماه (^ نفر اول)', // best users of each month (top 20)
 		'choose_month' => 'انتخاب ماه:', 
 		'rewardline_onpage' => 'پاداش‌ها: نفر اول: ... | نفر دوم : ...', // tell your users about monthly rewards/premiums
 		

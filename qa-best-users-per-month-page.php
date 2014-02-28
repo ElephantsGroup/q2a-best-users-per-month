@@ -35,7 +35,7 @@
 
 		function process_request($request)
 		{
-			$lang_page_title = qa_lang_html('qa_best_users_lang/page_title');
+			$lang_page_title = qa_lang_html_sub('qa_best_users_lang/page_title', qa_opt('bupm_page_users_count'));
 
 			if(!(bool)qa_opt('bupm_active'))
 			{
@@ -49,7 +49,7 @@
 				$qa_content['error']=qa_lang_html('qa_best_users_lang/plugin_is_not_activated');
 				return $qa_content;
 			}
-			require_once 'jdf.php';
+			if(qa_opt('bupm_date_type') == "2") require_once 'jdf.php';
 			/* SETTINGS */
 			$maxusers = (int)qa_opt('bupm_page_users_count'); 			// max users to display 
 			$showReward = true; 		// false to hide rewards
@@ -59,7 +59,7 @@
 			if((bool)qa_opt('best_users_EExU'))
 			{
 				foreach(explode(',', qa_opt('best_users_ExU')) as $id)
-					$excluded_users[] = $id;
+					if($id) $excluded_users[] = intval(trim($id));
 				
 				if(QA_FINAL_EXTERNAL_USERS && (bool)qa_opt('best_users_EEU'))
 				{

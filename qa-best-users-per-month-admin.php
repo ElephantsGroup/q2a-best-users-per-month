@@ -77,41 +77,48 @@ class qa_best_users_per_month_admin
 		}
 		if ( qa_clicked('bupm_save') )
 		{
-			if ( qa_post_text('bupm_active') )
+			if( !$this->validate_data() )
 			{
-				$sql = 'SHOW TABLES LIKE "^userscores"';
-				$result = qa_db_query_sub($sql);
-				$rows = qa_db_read_all_assoc($result);
-				if ( count($rows) > 0 )
-				{
-					qa_opt( $this->optactive, '1' );
-				}
-				else
-				{
-					$error = array(
-						'type' => 'custom',
-						'error' => qa_lang_html('qa_best_users_lang/admin_notable') . '<a href="' . qa_path('install') . '">' . qa_lang_html('qa_best_users_lang/admin_create_table') . '</a>',
-					);
-				}
-
-				$saved_msg = qa_lang_html('admin/options_saved');
+				$saved_msg = qa_lang_html('qa_best_users_lang/incorrect_entry');
 			}
 			else
-				qa_opt( $this->optactive, '0' );
-			qa_opt( $this->date_type, (int)qa_post_text('date_type') );
-			qa_opt( $this->page_users_count, (int)qa_post_text('page_users_count') );
-			qa_opt( $this->widget_users_count, (int)qa_post_text('widget_users_count') );
-			/*qa_opt( $this->ninja_edit_time, (int)qa_post_text('ninja_edit_time') );
-			qa_opt( $this->view_permission, (int)qa_post_text('view_permission') );*/
-			if ( qa_post_text('enabled_external_users') ) qa_opt( $this->enabled_external_users, '1' );
-			else qa_opt( $this->enabled_external_users, '0' );
-			qa_opt( $this->external_users_table, qa_post_text('external_users_table') );
-			qa_opt( $this->external_users_table_key, qa_post_text('external_users_table_key') );
-			qa_opt( $this->external_users_table_handle, qa_post_text('external_users_table_handle') );
-			if ( qa_post_text('enabled_excluded_users') ) qa_opt( $this->enabled_excluded_users, '1' );
-			else qa_opt( $this->enabled_excluded_users, '0' );
-			qa_opt( $this->excluded_users, qa_post_text('excluded_users') );
-			$rewards = $this->save_rewards( $post, $deleted );
+			{
+				if ( qa_post_text('bupm_active') )
+				{
+					$sql = 'SHOW TABLES LIKE "^userscores"';
+					$result = qa_db_query_sub($sql);
+					$rows = qa_db_read_all_assoc($result);
+					if ( count($rows) > 0 )
+					{
+						qa_opt( $this->optactive, '1' );
+					}
+					else
+					{
+						$error = array(
+							'type' => 'custom',
+							'error' => qa_lang_html('qa_best_users_lang/admin_notable') . '<a href="' . qa_path('install') . '">' . qa_lang_html('qa_best_users_lang/admin_create_table') . '</a>',
+						);
+					}
+
+					$saved_msg = qa_lang_html('admin/options_saved');
+				}
+				else
+					qa_opt( $this->optactive, '0' );
+				qa_opt( $this->date_type, (int)qa_post_text('date_type') );
+				qa_opt( $this->page_users_count, (int)qa_post_text('page_users_count') );
+				qa_opt( $this->widget_users_count, (int)qa_post_text('widget_users_count') );
+				/*qa_opt( $this->ninja_edit_time, (int)qa_post_text('ninja_edit_time') );
+				qa_opt( $this->view_permission, (int)qa_post_text('view_permission') );*/
+				if ( qa_post_text('enabled_external_users') ) qa_opt( $this->enabled_external_users, '1' );
+				else qa_opt( $this->enabled_external_users, '0' );
+				qa_opt( $this->external_users_table, qa_post_text('external_users_table') );
+				qa_opt( $this->external_users_table_key, qa_post_text('external_users_table_key') );
+				qa_opt( $this->external_users_table_handle, qa_post_text('external_users_table_handle') );
+				if ( qa_post_text('enabled_excluded_users') ) qa_opt( $this->enabled_excluded_users, '1' );
+				else qa_opt( $this->enabled_excluded_users, '0' );
+				qa_opt( $this->excluded_users, qa_post_text('excluded_users') );
+				$rewards = $this->save_rewards( $post, $deleted );
+			}
 		}
 
 		$bupm_active = qa_opt($this->optactive);
@@ -258,5 +265,46 @@ class qa_best_users_per_month_admin
 		qa_opt( $this->rewards, implode(',', $rewards) );
 
 		return $rewards;
+	}
+	
+	private function validate_data()
+	{
+		$ret = true;
+		
+		$table = $_POST['external_users_table'];
+		$table_key = $_POST['external_users_table_key'];
+		$table_handle = $_POST['external_users_table_handle'];
+	
+		// check if table exists
+		$sql = "SHOW TABLES LIKE '$table'";
+		$result = qa_db_query_sub($sql);
+		$rows = qa_db_read_all_assoc($result);
+		if (count($rows) == 0)
+			$ret = false;
+			
+		// check if id column exists
+		$sql = "SHOW COLUMNS FROM `$table` LIKE '$table_key'";
+		$result = qa_db_query_sub($sql);
+		$rows = qa_db_read_all_assoc($result);
+		if (count($rows) == 0)
+			$ret = false;
+			
+		// check if id column exists
+		$sql = "SHOW COLUMNS FROM `$table` LIKE '$table_handle'";
+		$result = qa_db_query_sub($sql);
+		$rows = qa_db_read_all_assoc($result);
+		if (count($rows) == 0)
+			$ret = false;
+			
+			
+		// check excluded users
+		$userids = explode(',', $_POST['excluded_users']);
+		foreach($userids as $id)
+			if($id and !is_numeric(trim($id)))
+			{
+				$ret = false;
+				break;
+			}
+		return $ret;
 	}
 }

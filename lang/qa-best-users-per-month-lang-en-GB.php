@@ -53,6 +53,7 @@
 		'add_reward_button' => 'Add a reward',
 		'reward_n' => 'Rewads for user ^:',
 		'delete_reward' => 'Delete Reward',
+		'incorrect_entry' => 'Incorrect Entries',
 
 		// widget + page
 		'best_users' => 'Best Users',			// your language string for 'best users'
@@ -64,7 +65,7 @@
 		'plugin_is_not_activated' => 'This page is deactivated.',
 		
 		// on page only
-		'page_title' => 'Best users per month (20 first places)', // best users of each month (top 20)
+		'page_title' => 'Best users per month (^ first places)', // best users of each month (top 20)
 		'choose_month' => 'choose month:', 
 		'rewardline_onpage' => 'Rewards: 1. Place: ... | 2. Place: ...', // tell your users about monthly rewards/premiums
 		

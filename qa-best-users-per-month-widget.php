@@ -51,7 +51,7 @@ class qa_best_users_per_month_widget {
 	{
 		if(!(bool)qa_opt('bupm_active'))
 			return;
-		require_once 'jdf.php';
+		if(qa_opt('bupm_date_type') == "2") require_once 'jdf.php';
 		/* Settings */
 		$maxusers = (int)qa_opt('bupm_widget_users_count');			// max users to display in widget
 		$showReward = false; 	// false to hide rewards
@@ -60,7 +60,7 @@ class qa_best_users_per_month_widget {
 		if((bool)qa_opt('best_users_EExU'))
 		{
 			foreach(explode(',', qa_opt('best_users_ExU')) as $id)
-				$excluded_users[] = $id;
+				if($id) $excluded_users[] = intval(trim($id));
 			
 			if(QA_FINAL_EXTERNAL_USERS && (bool)qa_opt('best_users_EEU'))
 			{

@@ -3,8 +3,8 @@
 	Plugin Name: Best Users per Month
 	Plugin URI: https://github.com/ElephantsGroup/q2a-best-users-per-month
 	Plugin Description: Displays the best users (with most points) of the current month in a widget and on a separate page
-	Plugin Version: 1.3.0
-	Plugin Date: 2014-02-26
+	Plugin Version: 1.3.1
+	Plugin Date: 2014-02-28
 	Plugin Author: q2apro.com
 	Plugin Author URI: http://www.q2apro.com
 	Plugin License: GPLv3
