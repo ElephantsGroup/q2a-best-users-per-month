@@ -17,6 +17,35 @@ class qa_best_users_per_month_admin
 	private $excluded_users = 'best_users_ExU';
 	private $rewards = 'best_users_rewards';
 
+	function option_default($option) {
+
+		switch($option) {
+			case 'date_type':
+				return 1;
+			case 'page_users_count':
+				return 9;
+			case 'widget_users_count':
+				return 3;
+			case 'enabled_external_users':
+				return 0;
+			case 'external_users_table':
+				return '';
+			case 'external_users_table_key':
+				return '';
+			case 'external_users_table_handle':
+				return '';
+			case 'enabled_excluded_users':
+				return 0;
+			case 'excluded_users':
+				return '';
+			case 'rewards':
+				return '';
+			default:
+				return null;
+		}
+		
+	}
+	
 	// initialize db-table 'userscores' if it does not exist yet
 	function init_queries($tableslc)
 	{
@@ -120,6 +149,19 @@ class qa_best_users_per_month_admin
 				$rewards = $this->save_rewards( $post, $deleted );
 			}
 		}
+		if ( qa_clicked('bupm_reset') )
+		{
+			qa_opt($this->date_type, $this->option_default('date_type'));
+			qa_opt($this->page_users_count, $this->option_default('page_users_count'));
+			qa_opt($this->enabled_external_users, $this->option_default('enabled_external_users'));
+			qa_opt($this->external_users_table, $this->option_default('external_users_table'));
+			qa_opt($this->external_users_table_key, $this->option_default('external_users_table_key'));
+			qa_opt($this->external_users_table_handle, $this->option_default('external_users_table_handle'));
+			qa_opt($this->widget_users_count, $this->option_default('widget_users_count'));
+			qa_opt($this->enabled_excluded_users, $this->option_default('enabled_excluded_users'));
+			qa_opt($this->excluded_users, $this->option_default('excluded_users'));
+			qa_opt($this->rewards, $this->option_default('rewards'));
+		}
 
 		$bupm_active = qa_opt($this->optactive);
 		$date_type = qa_opt($this->date_type);
@@ -218,6 +260,10 @@ class qa_best_users_per_month_admin
 				array(
 					'label' => qa_lang_html('admin/save_options_button'),
 					'tags' => 'name="bupm_save"',
+				),
+				array(
+					'label' => qa_lang_html('admin/reset_options_button'),
+					'tags' => 'name="bupm_reset"',
 				),
 				array(
 					'label' => qa_lang_html('qa_best_users_lang/add_reward_button'),
