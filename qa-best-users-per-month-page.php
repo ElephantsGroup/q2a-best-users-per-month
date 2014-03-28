@@ -44,8 +44,6 @@
 				return $qa_content;
 			}
 			
-			var_dump(qa_opt('permit_view_best_users_page'));
-			
 			if(!(bool)qa_opt('bupm_active'))
 			{
 				/* start */
