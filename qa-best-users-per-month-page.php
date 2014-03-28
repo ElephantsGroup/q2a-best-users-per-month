@@ -37,6 +37,15 @@
 		{
 			$lang_page_title = qa_lang_html_sub('qa_best_users_lang/page_title', qa_opt('bupm_page_users_count'));
 
+			if (qa_user_permit_error('permit_view_best_users_page'))
+			{
+				$qa_content=qa_content_prepare();
+				$qa_content['error'] = qa_lang_html('qa_best_users_lang/permission_error');
+				return $qa_content;
+			}
+			
+			var_dump(qa_opt('permit_view_best_users_page'));
+			
 			if(!(bool)qa_opt('bupm_active'))
 			{
 				/* start */
@@ -189,29 +198,43 @@
 			// we need to do another query to get the userscores of the recent month
 			if($chosenMonth == date("Y-m-01") ) {
 				// calculate userscores from recent month
-			$queryRecentScores = qa_db_query_sub("SELECT UP.userid, UP.points-COALESCE(TT.points, 0) AS mpoints
-									FROM ^userpoints AS UP LEFT JOIN
-									(SELECT US.userid, US.points FROM ^userscores AS US INNER JOIN
-									(SELECT userid, MAX(date) AS mdate FROM ^userscores GROUP BY userid) T
-									ON US.userid=T.userid AND US.date=T.mdate)
-									TT ON UP.userid=TT.userid
-									WHERE UP.userid NOT IN (".implode(',', $excluded_users).")
-									ORDER BY mpoints DESC, UP.userid DESC;");
-				// thanks srini.venigalla for helping me with advanced mysql
-				// http://stackoverflow.com/questions/11085202/calculate-monthly-userscores-between-two-tables-using-mysql
+				$queryRecentScores = qa_db_query_sub("SELECT UP.userid, UP.points-COALESCE(TT.points, 0) AS mpoints
+										FROM ^userpoints AS UP LEFT JOIN
+										(SELECT US.userid, US.points FROM ^userscores AS US INNER JOIN
+										(SELECT userid, MAX(date) AS mdate FROM ^userscores GROUP BY userid) T
+										ON US.userid=T.userid AND US.date=T.mdate)
+										TT ON UP.userid=TT.userid
+										WHERE UP.userid NOT IN (".implode(',', $excluded_users).")
+										ORDER BY mpoints DESC, UP.userid DESC;");
+					// thanks srini.venigalla for helping me with advanced mysql
+					// http://stackoverflow.com/questions/11085202/calculate-monthly-userscores-between-two-tables-using-mysql
 			}
 			else {
 				if(qa_opt('bupm_date_type') == 1)
-					$queryRecentScores = qa_db_query_sub("
-											SELECT ul.userid, 
-													ul.points - COALESCE(uf.points, 0) AS mpoints 
-											FROM `^userscores` ul 
-											LEFT JOIN (SELECT userid, points FROM `^userscores` WHERE `date` = '".$intervalStart."') AS uf
-											ON uf.userid = ul.userid
-											WHERE ul.date = '".$intervalEnd."'
-											AND ul.userid NOT IN (".implode(',', $excluded_users).")
-											ORDER BY mpoints DESC;"
-										);
+					if(QA_FINAL_EXTERNAL_USERS)
+						$queryRecentScores = qa_db_query_sub("
+												SELECT ul.userid, 
+														ul.points - COALESCE(uf.points, 0) AS mpoints 
+												FROM `^userscores` ul 
+												LEFT JOIN (SELECT userid, points FROM `^userscores` WHERE `date` = '".$intervalStart."') AS uf
+												ON uf.userid = ul.userid
+												WHERE ul.date = '".$intervalEnd."'
+												AND ul.userid NOT IN (".implode(',', $excluded_users).")
+												ORDER BY mpoints DESC;"
+											);
+					else
+						$queryRecentScores = qa_db_query_sub("
+												SELECT ul.userid, 
+														ul.points - COALESCE(uf.points, 0) AS mpoints 
+												FROM `^userscores` ul 
+												LEFT JOIN (SELECT userid, points FROM `^userscores` WHERE `date` = '".$intervalStart."') AS uf
+												ON uf.userid = ul.userid
+												INNER JOIN ^users AS u ON u.userid=ul.userid
+												WHERE u.level<=" . qa_opt('bupm_award_level') . "
+												AND ul.date = '".$intervalEnd."'
+												AND ul.userid NOT IN (".implode(',', $excluded_users).")
+												ORDER BY mpoints DESC;"
+											);
 				else if(qa_opt('bupm_date_type') == 2)
 					$queryRecentScores = qa_db_query_sub("
 						SELECT END.userid, end_points-begin_points AS mpoints FROM

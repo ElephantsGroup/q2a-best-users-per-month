@@ -54,6 +54,8 @@
 		'reward_n' => 'پاداش نفر ^:',
 		'delete_reward' => 'حذف پاداش',
 		'incorrect_entry' => 'ورودی‌های اشتباه وارد شده است.',
+		'award_level' => 'سطح جوایز',
+		'award_level_note' => 'بالاترین سطح دسترسی که جایزه به آن تعلق می‌گیرد.',
 
 		// widget + page
 		'best_users' => 'بهترین کاربران',			// your language string for 'best users'
@@ -71,6 +73,8 @@
 		
 		// subnavigation on all users page
 		'subnav_title' => 'بهترین کاربران', // best users of the month
+		'permit_view_best_users_page' => 'نمایش صفحه‌ی بهترین کاربران',
+		'permission_error' => 'متاسفانه، شما دسترسی لازم برای مشاهده‌ی فهرست بهترین کاربران را ندارید.',
 	);
 	
 

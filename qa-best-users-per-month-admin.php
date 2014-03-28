@@ -8,7 +8,7 @@ class qa_best_users_per_month_admin
 	private $date_type = 'bupm_date_type';
 	private $page_users_count = 'bupm_page_users_count';
 	private $widget_users_count = 'bupm_widget_users_count';
-	/*private $view_permission = 'best_users_view_permission';*/
+	private $award_level = 'bupm_award_level';
 	private $enabled_external_users = 'best_users_EEU';
 	private $external_users_table = 'best_users_EUT';
 	private $external_users_table_key = 'best_users_EUTK';
@@ -26,6 +26,8 @@ class qa_best_users_per_month_admin
 				return 9;
 			case 'widget_users_count':
 				return 3;
+			case 'award_level':
+				return QA_USER_LEVEL_MODERATOR;
 			case 'enabled_external_users':
 				return 0;
 			case 'external_users_table':
@@ -68,7 +70,16 @@ class qa_best_users_per_month_admin
 		$saved_msg = '';
 		$error = null;
 		$date_types = array( 1 => qa_lang_html('qa_best_users_lang/admin_georgian'), 2 => qa_lang_html('qa_best_users_lang/admin_jalali'));
-		//$permitoptions = qa_admin_permit_options(QA_PERMIT_ALL, QA_PERMIT_SUPERS, false, false);
+
+		$levelitoptions = array(QA_USER_LEVEL_BASIC=>qa_user_level_string(QA_USER_LEVEL_BASIC));
+		if (qa_opt('moderate_users'))
+			$levelitoptions[QA_USER_LEVEL_APPROVED]=qa_user_level_string(QA_USER_LEVEL_APPROVED);
+		$levelitoptions[QA_USER_LEVEL_EXPERT]=qa_user_level_string(QA_USER_LEVEL_EXPERT);
+		$levelitoptions[QA_USER_LEVEL_EDITOR]=qa_user_level_string(QA_USER_LEVEL_EDITOR);
+		$levelitoptions[QA_USER_LEVEL_MODERATOR]=qa_user_level_string(QA_USER_LEVEL_MODERATOR);
+		$levelitoptions[QA_USER_LEVEL_ADMIN]=qa_user_level_string(QA_USER_LEVEL_ADMIN);
+		$levelitoptions[QA_USER_LEVEL_SUPER]=qa_user_level_string(QA_USER_LEVEL_SUPER);
+
 		$rewards = explode(',', qa_opt($this->rewards));
 		$post = @$_POST['rewards'];
 		$deleted = @$_POST['deleted_rewards'];
@@ -136,8 +147,7 @@ class qa_best_users_per_month_admin
 				qa_opt( $this->date_type, (int)qa_post_text('date_type') );
 				qa_opt( $this->page_users_count, (int)qa_post_text('page_users_count') );
 				qa_opt( $this->widget_users_count, (int)qa_post_text('widget_users_count') );
-				/*qa_opt( $this->ninja_edit_time, (int)qa_post_text('ninja_edit_time') );
-				qa_opt( $this->view_permission, (int)qa_post_text('view_permission') );*/
+				qa_opt( $this->award_level, (int)qa_post_text('award_level') );
 				if ( qa_post_text('enabled_external_users') ) qa_opt( $this->enabled_external_users, '1' );
 				else qa_opt( $this->enabled_external_users, '0' );
 				qa_opt( $this->external_users_table, qa_post_text('external_users_table') );
@@ -153,6 +163,7 @@ class qa_best_users_per_month_admin
 		{
 			qa_opt($this->date_type, $this->option_default('date_type'));
 			qa_opt($this->page_users_count, $this->option_default('page_users_count'));
+			qa_opt($this->award_level, $this->option_default('award_level'));
 			qa_opt($this->enabled_external_users, $this->option_default('enabled_external_users'));
 			qa_opt($this->external_users_table, $this->option_default('external_users_table'));
 			qa_opt($this->external_users_table_key, $this->option_default('external_users_table_key'));
@@ -167,8 +178,7 @@ class qa_best_users_per_month_admin
 		$date_type = qa_opt($this->date_type);
 		$page_users_count = qa_opt($this->page_users_count);
 		$widget_users_count = qa_opt($this->widget_users_count);
-		/*$ninja_edit_time = qa_opt($this->ninja_edit_time);
-		$view_permission = qa_opt($this->view_permission);*/
+		$award_level = qa_opt($this->award_level);
 		$enabled_external_users = qa_opt($this->enabled_external_users);
 		$external_users_table = qa_opt($this->external_users_table);
 		$external_users_table_key = qa_opt($this->external_users_table_key);
@@ -208,14 +218,14 @@ class qa_best_users_per_month_admin
 					'value' =>  $widget_users_count,
 					'options' => array(2=>2, 3, 4, 5, 6, 7),
 				),
-				/*array(
+				array(
 					'type' => 'select',
-					'label' => qa_lang_html('edithistory/view_permission'),
-					'tags' => 'NAME="view_permission"',
-					'value' =>  @$permitoptions[$view_permission],
-					'options' => $permitoptions,
-					'note' => qa_lang_html('edithistory/view_permission_note'),
-				),*/
+					'label' => qa_lang_html('qa_best_users_lang/award_level'),
+					'tags' => 'NAME="award_level"',
+					'value' =>  @$levelitoptions[$award_level],
+					'options' => $levelitoptions,
+					'note' => qa_lang_html('qa_best_users_lang/award_level_note'),
+				),
 				array(
 					'type' => 'checkbox',
 					'label' => qa_lang_html('qa_best_users_lang/enabled_external_users'),
@@ -317,31 +327,34 @@ class qa_best_users_per_month_admin
 	{
 		$ret = true;
 		
-		$table = $_POST['external_users_table'];
-		$table_key = $_POST['external_users_table_key'];
-		$table_handle = $_POST['external_users_table_handle'];
+		$table = @$_POST['external_users_table'];
+		$table_key = @$_POST['external_users_table_key'];
+		$table_handle = @$_POST['external_users_table_handle'];
 	
 		// check if table exists
-		$sql = "SHOW TABLES LIKE '$table'";
-		$result = qa_db_query_sub($sql);
-		$rows = qa_db_read_all_assoc($result);
-		if (count($rows) == 0)
-			$ret = false;
-		else
+		if('1' == @$_POST['enabled_external_users'])
 		{
-			// check if id column exists
-			$sql = "SHOW COLUMNS FROM `$table` LIKE '$table_key'";
+			$sql = "SHOW TABLES LIKE '$table'";
 			$result = qa_db_query_sub($sql);
 			$rows = qa_db_read_all_assoc($result);
 			if (count($rows) == 0)
 				$ret = false;
-				
-			// check if id column exists
-			$sql = "SHOW COLUMNS FROM `$table` LIKE '$table_handle'";
-			$result = qa_db_query_sub($sql);
-			$rows = qa_db_read_all_assoc($result);
-			if (count($rows) == 0)
-				$ret = false;
+			else
+			{
+				// check if id column exists
+				$sql = "SHOW COLUMNS FROM `$table` LIKE '$table_key'";
+				$result = qa_db_query_sub($sql);
+				$rows = qa_db_read_all_assoc($result);
+				if (count($rows) == 0)
+					$ret = false;
+					
+				// check if id column exists
+				$sql = "SHOW COLUMNS FROM `$table` LIKE '$table_handle'";
+				$result = qa_db_query_sub($sql);
+				$rows = qa_db_read_all_assoc($result);
+				if (count($rows) == 0)
+					$ret = false;
+			}
 		}
 			
 		// check excluded users

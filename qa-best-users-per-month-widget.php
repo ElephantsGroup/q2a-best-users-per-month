@@ -104,15 +104,25 @@ class qa_best_users_per_month_widget {
 		
 		// compare userscores from last month to userpoints now (this query is considering new users that do not exist in qa_userscores) 
 		// as we order by mpoints the query returns best users first, and we do not need to sort by php: arsort($scores)
-		$queryRecentScores = qa_db_query_sub("SELECT UP.userid, UP.points-COALESCE(TT.points, 0) AS mpoints
-								FROM ^userpoints AS UP LEFT JOIN
-								(SELECT US.userid, US.points FROM ^userscores AS US INNER JOIN
-								(SELECT userid, MAX(date) AS mdate FROM ^userscores GROUP BY userid) T
-								ON US.userid=T.userid AND US.date=T.mdate)
-								TT ON UP.userid=TT.userid
-								WHERE UP.userid NOT IN (".implode(',', $excluded_users).")
-								ORDER BY mpoints DESC, UP.userid DESC;");
-
+		if(QA_FINAL_EXTERNAL_USERS)
+			$queryRecentScores = qa_db_query_sub("SELECT UP.userid, UP.points-COALESCE(TT.points, 0) AS mpoints
+									FROM ^userpoints AS UP LEFT JOIN
+									(SELECT US.userid, US.points FROM ^userscores AS US INNER JOIN
+									(SELECT userid, MAX(date) AS mdate FROM ^userscores GROUP BY userid) T
+									ON US.userid=T.userid AND US.date=T.mdate)
+									TT ON UP.userid=TT.userid
+									WHERE UP.userid NOT IN (".implode(',', $excluded_users).")
+									ORDER BY mpoints DESC, UP.userid DESC;");
+		else
+			$queryRecentScores = qa_db_query_sub("SELECT UP.userid, UP.points-COALESCE(TT.points, 0) AS mpoints
+									FROM ^userpoints AS UP LEFT JOIN
+									(SELECT US.userid, US.points FROM ^userscores AS US INNER JOIN
+									(SELECT userid, MAX(date) AS mdate FROM ^userscores GROUP BY userid) T
+									ON US.userid=T.userid AND US.date=T.mdate)
+									TT ON UP.userid=TT.userid
+									INNER JOIN ^users AS U ON UP.userid=U.userid
+									WHERE U.level<=" . qa_opt('bupm_award_level') . " AND UP.userid NOT IN (".implode(',', $excluded_users).")
+									ORDER BY mpoints DESC, UP.userid DESC;");
 		
 		// save all userscores in array $scores
 		$scores = array();

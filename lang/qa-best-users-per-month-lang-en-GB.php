@@ -54,6 +54,8 @@
 		'reward_n' => 'Rewads for user ^:',
 		'delete_reward' => 'Delete Reward',
 		'incorrect_entry' => 'Incorrect Entries',
+		'award_level' => 'Award Level',
+		'award_level_note' => 'Maximum level that include in awards.',
 
 		// widget + page
 		'best_users' => 'Best Users',			// your language string for 'best users'
@@ -71,6 +73,8 @@
 		
 		// subnavigation on all users page
 		'subnav_title' => 'Best Users', // best users of the month
+		'permit_view_best_users_page' => 'best users page view',
+		'permission_error' => 'Sorry, you do not have permissions to view best users records.',
 	);
 	
 

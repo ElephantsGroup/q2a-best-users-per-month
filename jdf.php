@@ -4,6 +4,9 @@
 Copyright(C)2011, Reza Gholampanahi , http://jdf.scr.ir
 version 2.50 :: 1390/08/24 = 1432/12/18 = 2011/11/15 */
 
+if(!function_exists('jdate'))
+{
+
 /*	F	*/
 function jdate($format,$timestamp='',$none='',$time_zone='Asia/Tehran',$tr_num='fa'){
 
@@ -593,3 +596,4 @@ function jalali_to_gregorian($j_y,$j_m,$j_d,$mod=''){
 }
 
 /* [ jdf.php ] version 2.50 ?> Download new version from [ http://jdf.scr.ir ] */
+}
